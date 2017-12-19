@@ -1,0 +1,15 @@
+{
+  "name": "reddit",
+  "version": "1.0.0",
+  "description": "reddit bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "decho",
+  "license": "ISC",
+  "dependencies": {
+    "reddit-oauth-helper": "^0.3.0",
+    "snoowrap": "^1.15.1"
+  }
+}
