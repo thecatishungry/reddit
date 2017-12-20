@@ -2,8 +2,8 @@ const snoowrap = require('snoowrap'),
       request = require('request');
 
 const mysub = 'barcasubdesign',
-      regex = new RegExp('(^#{5}[a-zA-Z0-9(].*\n){3}','gm'),
-      interval = 60000;
+      regex = new RegExp('(^#{5}[a-zA-Z0-9(*].*\n){3}','gm'),
+      interval = 600000;
 
 const r = new snoowrap({
   userAgent: 'barca bot',
@@ -17,36 +17,38 @@ function get_barca_unix(callback) {
   request('https://www.fcbarcelona.com/football/first-team/schedule', function (error, response, body) {
 
     if (error) {
-      console.log('error:', error); // Print the error if one occurred
+      console.log('error:', error);
     }
 
     else {
-      console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+      console.log('statusCode:', response && response.statusCode);
     
       var timestamp = body.match(/target_date.*/g);
-      var timestamp = timestamp[0].split("'")[1];
-
-      //set the date we're counting down to
-      var target_date = timestamp;
-      var days, hours, minutes, seconds;
-    
-      // find the amount of "seconds" between now and target
-      var current_date = new Date().getTime();
-      var seconds_left = (target_date - current_date) / 1000;
-    
-      // do some time calculations
-      days = parseInt(seconds_left / 86400);
-      seconds_left = seconds_left % 86400;
-      hours = parseInt(seconds_left / 3600);
-      seconds_left = seconds_left % 3600;
-      minutes = parseInt(seconds_left / 60);
-      seconds = parseInt(seconds_left % 60);
-
-      var final = `${days} days ${hours} hours ${minutes} minutes ${seconds} seconds`;
+      let final = timestamp_to_code(timestamp);
 
       callback(final);
     }
   });
+}
+
+function timestamp_to_code(timestamp) {
+
+  let target_date = timestamp[0].split("'")[1];
+  let days, hours, minutes, seconds;
+
+  let current_date = new Date().getTime();
+  let seconds_left = (target_date - current_date) / 1000;
+
+  days = parseInt(seconds_left / 86400);
+  seconds_left = seconds_left % 86400;
+  hours = parseInt(seconds_left / 3600);
+  seconds_left = seconds_left % 3600;
+  minutes = parseInt(seconds_left / 60);
+  seconds = parseInt(seconds_left % 60);
+
+  let final = `#####Next match in:\n#####**${days}** days **${hours}** hours **${minutes}** minutes\n#####(updated every ${(interval / 1000) / 60} minutes)\n`;
+
+  return final;
 }
 
 function get_sidebar(callback) {
@@ -67,7 +69,7 @@ function do_loop() {
 
       get_barca_unix(function(date) {
         var current_sidebar = data.description;
-        var new_sidebar = current_sidebar.replace(regex,'#####' + date);
+        var new_sidebar = current_sidebar.replace(regex,date);
           r.getSubreddit(mysub).editSettings({ description: new_sidebar });
       })
 
