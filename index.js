@@ -5,8 +5,6 @@ const mysub = 'barcasubdesign',
       regex = new RegExp('^#{5}[a-zA-Z0-9].*','gm'),
       interval = 60000;
 
-const port = process.env.PORT || 3000;
-      
 const r = new snoowrap({
   userAgent: 'barca bot',
   clientId: process.env.CLIENT_ID,
