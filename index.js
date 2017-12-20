@@ -2,7 +2,7 @@ const snoowrap = require('snoowrap'),
       request = require('request');
 
 const mysub = 'barcasubdesign',
-      regex = new RegExp('^#{5}[a-zA-Z0-9].*','gm'),
+      regex = new RegExp('(^#{5}[a-zA-Z0-9(].*\n){3}','gm'),
       interval = 60000;
 
 const r = new snoowrap({
