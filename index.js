@@ -12,8 +12,6 @@ const r = new snoowrap({
   refreshToken: process.argv[4]
 });
 
-console.log(process.argv);
-
 function get_barca_unix(callback) {
   
   request('https://www.fcbarcelona.com/football/first-team/schedule', function (error, response, body) {
