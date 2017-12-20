@@ -11,5 +11,8 @@
   "dependencies": {
     "reddit-oauth-helper": "^0.3.0",
     "snoowrap": "^1.15.1"
+  },
+  "engines": {
+    "node" : "8.9.3"
   }
 }
