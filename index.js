@@ -7,9 +7,9 @@ const mysub = 'barcasubdesign',
 
 const r = new snoowrap({
   userAgent: 'barca bot',
-  clientId: process.argv[2],
-  clientSecret: process.argv[3],
-  refreshToken: process.argv[4]
+  clientId: process.env.CLIENT_ID,
+  clientSecret: process.env.CLIENT_SECRET,
+  refreshToken: process.env.REFRESH_TOKEN
 });
 
 function get_barca_unix(callback) {
