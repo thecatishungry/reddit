@@ -90,8 +90,6 @@ function get_sidebar(callback) {
   })
 }
 
-do_loop();
-
 function do_loop() {
   get_sidebar(function(data){
 
@@ -114,3 +112,5 @@ function do_loop() {
 
   });
 }
+
+do_loop();
