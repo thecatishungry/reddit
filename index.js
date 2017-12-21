@@ -42,9 +42,10 @@ function get_barca_unix(callback) {
 function timestamp_to_code(timestamp) {
 
   let current_date = new Date().getTime();
-  let difference = timestamp - current_date;
+  let target_date = parseInt(timestamp[0].split("'")[1]);
 
-  let target_date = timestamp[0].split("'")[1];
+  let difference = target_date - current_date;
+
   let days, hours, minutes, seconds;
   let seconds_left = (target_date - current_date) / 1000;
 
@@ -54,6 +55,10 @@ function timestamp_to_code(timestamp) {
   seconds_left = seconds_left % 3600;
   minutes = parseInt(seconds_left / 60);
   seconds = parseInt(seconds_left % 60);
+
+  let days_plural = (days > 1 ? "days" : "day");
+  let hours_plural = (hours > 1 ? "hours" : "hour");
+  let minutes_plural = (days > 1 ? "minutes" : "minute");
 
   if (difference <= 0) {
     console.log('match under way. sleeping for 110 minutes.');
@@ -67,14 +72,14 @@ function timestamp_to_code(timestamp) {
     console.log('6 hrs or less remaining. setting interval to 15 minutes.');
 
     interval = 900000;
-    let final = `#####Next match in:\n#####**${hours}** hours **${minutes}** minutes\n#####(updated every ${(interval / 1000) / 60} minutes)\n`;
+    let final = `#####Next match in:\n#####**${hours}** ${hours_plural} **${minutes}** ${minutes_plural}\n#####(updated every ${(interval / 1000) / 60} minutes)\n`;
     return final;
   }
   else if (difference >= 21600) {
     console.log('more than 6 hours remaining. setting interval to 1 hour.');
 
     interval = 3600000;
-    let final = `#####Next match in:\n#####**${days}** days **${hours}** hours\n#####(updated every ${(interval / 1000) / 60} minutes)\n`;
+    let final = `#####Next match in:\n#####**${days}** ${days_plural} **${hours}** ${hours_plural}\n#####(updated every ${(interval / 1000) / 60} minutes)\n`;
     return final;
   }
 }
@@ -109,11 +114,3 @@ function do_loop() {
 
   });
 }
-
-// let starter = setInterval(do_loop, interval);
-
-// function kill_loop() {
-//   clearInterval(starter);
-// }
-
-
