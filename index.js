@@ -2,14 +2,11 @@ const snoowrap = require('snoowrap'),
       request = require('request');
 
 const mysub = 'barcasubdesign',
-      regex = new RegExp('(^#{5}[a-zA-Z0-9(*].*\n){3}','gm');
+      regex = new RegExp('(^#{5}[a-zA-Z0-9(*].*\n)','gm');
 
-var interval = 600000;
+var interval = 900000;
 
-//600000  = 10 minutes
-//900000  = 15 minutes
-//3600000 = 1 hour
-//6600000 = 1 hour 50 minutes
+//Note: Reddit doesn't show an entry to the mod log if the previous entry is the same as the last one.
 
 const r = new snoowrap({
   userAgent: 'barca bot',
@@ -23,16 +20,17 @@ function get_barca_unix(callback) {
 
     if (error) {
       console.log('error:', error);
+      console.log(`next loop in ${(interval / 1000) / 60} minutes`);
+
       setTimeout(function(){ do_loop(); }, interval);
     }
 
     else {
-      console.log('statusCode:', response && response.statusCode);
-    
+   
       let timestamp = body.match(/target_date.*/g);
       let final = timestamp_to_code(timestamp);
 
-      console.log(final);
+      console.log(`\n${final}`);
 
       callback(final);
     }
@@ -44,7 +42,12 @@ function timestamp_to_code(timestamp) {
   let current_date = new Date().getTime();
   let target_date = parseInt(timestamp[0].split("'")[1]);
 
-  let difference = target_date - current_date;
+  console.log(`\ncurrent time: ${current_date}`);
+  console.log(`match time: ${target_date}`);
+
+  let difference = (target_date - current_date) / 1000;
+
+  console.log(`difference is ${difference} seconds\n`);
 
   let days, hours, minutes, seconds;
   let seconds_left = (target_date - current_date) / 1000;
@@ -56,30 +59,39 @@ function timestamp_to_code(timestamp) {
   minutes = parseInt(seconds_left / 60);
   seconds = parseInt(seconds_left % 60);
 
-  let days_plural = (days > 1 ? "days" : "day");
-  let hours_plural = (hours > 1 ? "hours" : "hour");
-  let minutes_plural = (days > 1 ? "minutes" : "minute");
+  let days_plural = (days != 1 ? "days" : "day");
+  let hours_plural = (hours != 1 ? "hours" : "hour");
+  let minutes_plural = (minutes != 1 ? "minutes" : "minute");
 
   if (difference <= 0) {
     console.log('match under way. sleeping for 110 minutes.');
 
     interval = 6600000;
-    let final = `#####Next match in:\n#####**Match currently is progress\n#####(updated every 60 minutes)\n`;
+    let final = `#####Next match in: **Match currently is progress**\n`;
     return final;
-
   }
+
   else if (difference <= 21600) {
     console.log('6 hrs or less remaining. setting interval to 15 minutes.');
 
     interval = 900000;
-    let final = `#####Next match in:\n#####**${hours}** ${hours_plural} **${minutes}** ${minutes_plural}\n#####(updated every ${(interval / 1000) / 60} minutes)\n`;
+    let final = `#####Next match in: **${hours}** ${hours_plural} **${minutes}** ${minutes_plural}\n`;
     return final;
   }
+
+  else if (difference <= 86400 && difference >= 21600) {
+    console.log('6 to 24 hours remaining. removing days and adding minutes.');
+    
+    interval = 3600000;
+    let final = `#####Next match in: **${hours}** ${hours_plural} **${minutes}** ${minutes_plural}\n`;
+    return final;    
+  }
+
   else if (difference >= 21600) {
     console.log('more than 6 hours remaining. setting interval to 1 hour.');
 
     interval = 3600000;
-    let final = `#####Next match in:\n#####**${days}** ${days_plural} **${hours}** ${hours_plural}\n#####(updated every ${(interval / 1000) / 60} minutes)\n`;
+    let final = `#####Next match in: **${days}** ${days_plural} **${hours}** ${hours_plural}\n`;
     return final;
   }
 }
@@ -96,17 +108,20 @@ function do_loop() {
     if (data.description.match(regex)) {
 
       get_barca_unix(function(result) {
-        var current_sidebar = data.description;
-        var new_sidebar = current_sidebar.replace(regex,result);
+        let current_sidebar = data.description;
+        let new_sidebar = current_sidebar.replace(regex,result);
 
-        r.getSubreddit(mysub).editSettings({ description: new_sidebar });
-        setTimeout(function(){ do_loop(); }, interval);
+        r.getSubreddit(mysub).editSettings({ description: new_sidebar }).then(function(){
+          console.log(`next loop in ${(interval / 1000) / 60} minutes`);
+          setTimeout(function(){ do_loop(); }, interval);
+        });
       })
-
     }
 
     else {
       console.log('timer not found on sidebar.');
+      console.log(`next loop in ${(interval / 1000) / 60} minutes`);
+
       setTimeout(function(){ do_loop(); }, interval);
     }
 
@@ -114,3 +129,4 @@ function do_loop() {
 }
 
 do_loop();
+
